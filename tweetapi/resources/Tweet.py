@@ -1,6 +1,7 @@
 #!/usr/bin/env python2
 # -*- coding: utf-8 -*-
 import flask_restful as  restful
+from flask import request
 import sys
 from flask_restful import marshal, reqparse, abort
 from tweetapi.resources import tweet_fields, auth
@@ -13,8 +14,8 @@ class Tweet(restful.Resource):
     def __init__(self):
         self.post_parse = reqparse.RequestParser()
         self.post_parse.add_argument('user_id', type=int, required=True, help='No user_id', location='json')
-        self.post_parse.add_argument('description', type=str, required=True, help='No description', location='json')
-        self.post_parse.add_argument('image_url', type=str, required=False, location='json')
+        self.post_parse.add_argument('description', type=unicode, required=True, help='No description', location='json')
+        self.post_parse.add_argument('image_url', type=unicode, required=False, location='json')
 
         self.get_parse = reqparse.RequestParser()
         self.get_parse.add_argument('last_tweet_id', type=int, required=False, location='args')

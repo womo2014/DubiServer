@@ -12,9 +12,9 @@ class Comment(restful.Resource):
 
     def __init__(self):
         self.post_parse = reqparse.RequestParser()
-        self.post_parse.add_argument('tweet_id', type=int, required=True, location='json')
-        self.post_parse.add_argument('content', type=str, required=True, location='json')
-        self.post_parse.add_argument('from_user_id', type=int, required=True, location='json')
+        self.post_parse.add_argument('tweet_id', type=int, required=True, location='json', help='require tweet_id')
+        self.post_parse.add_argument('content', type=unicode, required=True, location='json', help='require content')
+        self.post_parse.add_argument('from_user_id', type=int, required=True, location='json', help='require from_user_id')
         self.post_parse.add_argument('to_user_id', type=int, required=False, location='json')
 
         self.get_parse = reqparse.RequestParser()

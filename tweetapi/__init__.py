@@ -9,6 +9,7 @@ from tweetapi.resources.Login import Login
 from tweetapi.resources.Registration import Registration
 from tweetapi.resources.Tweet import Tweet
 from tweetapi.resources.Comment import Comment, CommentTable
+from tweetapi.resources.Image import Image
 
 app = Flask(__name__)
 app.config.from_pyfile('config.py')
@@ -33,6 +34,7 @@ api.add_resource(Login, '/login')
 api.add_resource(Registration, '/registration')
 api.add_resource(Tweet, '/tweet', '/tweet/<int:tweet_id>', '/tweet/user/<int:user_id>')
 api.add_resource(Comment, '/comment', '/comment/<int:tweet_id>')
+api.add_resource(Image, '/image', '/image/<filename>')
 if __name__ == '__main__':
     app.run(debug=True)
 

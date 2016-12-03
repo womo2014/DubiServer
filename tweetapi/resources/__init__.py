@@ -11,7 +11,7 @@ user_fields = {
 tweet_fields = {
     'user': fields.Nested(user_fields),
     'description': fields.String,
-    'stared': fields.Boolean,
+    'likes': fields.Boolean,
     'tweet_id': fields.Integer,
     'image_url':fields.String
 }
