@@ -27,7 +27,11 @@ class Image(restful.Resource):
     def get(self, filename = None):
         args = self.get_parse.parse_args()
         filename = args['filename'] if filename is None else filename
-        return send_file(os.path.join(config.UPLOAD_FOLDER, filename))
+        path = os.path.join(config.UPLOAD_FOLDER, filename)
+        if os.path.exists(path):
+            return send_file(path)
+        else:
+            abort(404)
 
     def post(self):
         args = self.post_parse.parse_args()
@@ -35,6 +39,7 @@ class Image(restful.Resource):
         if allowed_file(filename):
             filename = secure_filename(filename)
             print filename
+            print args['image']
             image_data = base64.b64decode(args['image'])
             with open(os.path.join(config.UPLOAD_FOLDER, filename), 'wb') as image:
                 image.write(image_data)
