@@ -11,9 +11,7 @@ from tweetapi.resources.Tweet import Tweet
 from tweetapi.resources.Comment import Comment, CommentTable
 
 app = Flask(__name__)
-app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+mysqlconnector://root:root@localhost:3306/test'
-app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = True
-app.config['SQLALCHEMY_ECHO'] = False
+app.config.from_pyfile('config.py')
 db.init_app(app)
 
 with app.app_context():
