@@ -20,24 +20,25 @@ class Image(restful.Resource):
         self.get_parse = reqparse.RequestParser()
         self.get_parse.add_argument('filename', location='args')
 
+        self.post_parse = reqparse.RequestParser()
+        self.post_parse.add_argument('filename', required=True, location='json')
+        self.post_parse.add_argument('image', required=True, location='json')
+
     def get(self, filename = None):
         args = self.get_parse.parse_args()
         filename = args['filename'] if filename is None else filename
         return send_file(os.path.join(config.UPLOAD_FOLDER, filename))
 
     def post(self):
-        print 'image post here'
-        data = request.get_json(force=True)
-        filenames = data.keys()
-        for filename in filenames:
-            if allowed_file(filename):
-                filename = secure_filename(filename)
-                print filename
-                image_data = base64.b64decode(data[filename])
-                with open(os.path.join(config.UPLOAD_FOLDER, filename), 'wb') as image:
-                    image.write(image_data)
-                return {'url':url_for('image', filename=filename)}
-        abort(400)
+        args = self.post_parse.parse_args()
+        filename = args['filename']
+        if allowed_file(filename):
+            filename = secure_filename(filename)
+            print filename
+            image_data = base64.b64decode(args['image'])
+            with open(os.path.join(config.UPLOAD_FOLDER, filename), 'wb') as image:
+                image.write(image_data)
+            return {'url':url_for('image', filename=filename)}
 
 
 def allowed_file(filename):
