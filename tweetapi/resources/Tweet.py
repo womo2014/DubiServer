@@ -32,15 +32,12 @@ class Tweet(restful.Resource):
         user_id = args['user_id'] if user_id is None else user_id
         # /tweet/<tweet_id>
         if tweet_id is not None:
-            print tweet_id
             tweet = TweetTable.query.get(tweet_id)
-            print tweet
             if tweet is None:
                 abort(404)
             return marshal(tweet, tweet_fields)
         # /tweet/user/<user_id>/
         elif user_id is not None:
-            print user_id
             user = User.query.get(user_id)
             if user is not None:
                 return {'tweets': [marshal(tweet, tweet_fields) for tweet in user.tweets
@@ -59,12 +56,10 @@ class Tweet(restful.Resource):
 
     def post(self):
         args = self.post_parse.parse_args()
-        print args
-        tweet = TweetTable(args['user_id'], args['description'])
+        tweet = TweetTable(args['user_id'], args['description'], args['image_url'])
         db.session.add(tweet)
         db.session.commit()
         user = User.query.get(args['user_id'])
-        print user
         return marshal(tweet, tweet_fields)
         pass
 

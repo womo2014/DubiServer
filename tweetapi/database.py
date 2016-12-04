@@ -2,6 +2,8 @@
 # -*- coding: utf-8 -*-
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import event
+from sqlalchemy.orm import backref
+
 db = SQLAlchemy()
 
 
@@ -10,7 +12,8 @@ class User(db.Model):
     username = db.Column(db.String(50), unique=True, nullable=False)
     password = db.Column(db.String(100), nullable=False)
     photo_url = db.Column(db.String(50))
-    tweets = db.relationship('Tweet', backref='user', lazy='dynamic')
+    tweets = db.relationship('Tweet', backref='user', lazy='dynamic', cascade="all, delete-orphan",
+                             passive_deletes=True)
     def __init__(self, username, password, photo_url = None):
         self.username = username
         self.password = password
@@ -31,9 +34,11 @@ class Tweet(db.Model):
     description = db.Column(db.TEXT, nullable=False)
     stared = db.Column(db.Integer, nullable=False, default=0)
     image_url = db.Column(db.String(50))
-    user_id = db.Column(db.Integer, db.ForeignKey('user.user_id'), nullable=False)
-    comments = db.relationship('Comment', lazy='dynamic')
-    def __init__(self,user_id, description, image_url = None, stared=False):
+    user_id = db.Column(db.Integer, db.ForeignKey('user.user_id', ondelete='CASCADE'), nullable=False)
+    comments = db.relationship('Comment', lazy='dynamic', cascade="all, delete-orphan",
+                             passive_deletes=True)
+
+    def __init__(self, user_id, description, image_url=None, stared=False):
         self.description = description
         self.user_id = user_id
         self.image_url = image_url
@@ -49,9 +54,9 @@ class Tweet(db.Model):
 class Comment(db.Model):
     comment_id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     content = db.Column(db.TEXT, nullable=False)
-    from_user_id = db.Column(db.Integer, db.ForeignKey('user.user_id'), nullable=False)
+    tweet_id = db.Column(db.Integer, db.ForeignKey('tweet.tweet_id', ondelete='CASCADE'), nullable=False)
+    from_user_id = db.Column(db.Integer, db.ForeignKey('user.user_id', ondelete='CASCADE'), nullable=False)
     to_user_id = db.Column(db.Integer, db.ForeignKey('user.user_id'))
-    tweet_id = db.Column(db.Integer, db.ForeignKey('tweet.tweet_id'), nullable=False)
     user = db.relationship('User', backref='comments', foreign_keys=from_user_id)
 
     def __init__(self, tweet_id, content, from_user_id, to_user_id=None):
@@ -70,12 +75,6 @@ class Comment(db.Model):
     pass
 
 
-# standard decorator style
-@event.listens_for(Comment.comment_id, 'set')
-def receive_append(target, value, initiator):
-    "listen for the 'append' event"
-    print 'append'
-    # ... (event handling logic) ...
 
 
 

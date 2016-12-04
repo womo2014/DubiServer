@@ -44,7 +44,6 @@ class Comment(restful.Resource):
 
     @marshal_with(comment_fields)
     def post(self):
-        print 'here'
         args = self.post_parse.parse_args()
         tweet_id =  args['tweet_id']
         content = args['content']
@@ -54,9 +53,7 @@ class Comment(restful.Resource):
         if tweet_id is None or content is None or from_user_id is None:
             abort(400)
         else:
-            print 'fuck'
             comment = CommentTable(tweet_id, content, from_user_id, to_user_id)
-            print 'fuck'
             db.session.add(comment)
             db.session.commit()
             return comment

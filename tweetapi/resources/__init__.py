@@ -1,5 +1,6 @@
+import time, base64
 from flask_restful import fields
-from flask import Flask, make_response, jsonify
+from flask import make_response, jsonify, g, request
 from flask_httpauth import HTTPTokenAuth
 
 user_fields = {
@@ -24,7 +25,7 @@ comment_fields = {
 }
 
 auth = HTTPTokenAuth(scheme='Token')
-tokens = {
+users = {
     "aaabbbccc": "john",
     "bbbcccddd": "susan"
 }
@@ -32,10 +33,12 @@ tokens = {
 
 @auth.verify_token
 def verify_token(token):
-    print token
-    if token in tokens:
-        # g.current_user = tokens[token]
-        return True
+    if token in users:
+        if request.method == 'GET':
+            return True
+        data = request.json
+        if 'user_id' in data and data['user_id'] == users[token]:
+            return True
     return False
 
 
@@ -44,3 +47,13 @@ def unauthorized():
     resp = make_response(jsonify({'error': 'Unauthorized access'}), 401)
     return resp
 
+
+def generate_token(user_id):
+    string = unicode(user_id)+':'+unicode(time.time())
+    return base64.b64encode(string)
+
+
+def parse_token(token):
+    string = base64.b64decode(token)
+    user_id, login_time = string.split(':')
+    return int(user_id)
