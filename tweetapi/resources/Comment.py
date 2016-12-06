@@ -12,40 +12,47 @@ class Comment(restful.Resource):
 
     def __init__(self):
         self.post_parse = reqparse.RequestParser()
-        self.post_parse.add_argument('tweet_id', type=int, required=True, location='json', help='require tweet_id')
-        self.post_parse.add_argument('content', type=unicode, required=True, location='json', help='require content')
-        self.post_parse.add_argument('from_user_id', type=int, required=True, location='json', help='require from_user_id')
+        self.post_parse.add_argument('content', type=unicode, required=True, location='json',
+                                     help='require content')
+        self.post_parse.add_argument('from_user_id', type=int, required=True, location='json',
+                                     help='require from_user_id')
         self.post_parse.add_argument('to_user_id', type=int, required=False, location='json')
 
         self.get_parse = reqparse.RequestParser()
-        self.get_parse.add_argument('last_comment_id', type=int, required=False, location='args')
-        self.get_parse.add_argument('limit', type=int, required=False, location='args')
-        self.get_parse.add_argument('tweet_id', type=int, required=False, location='args')
-        self.get_parse.add_argument('user_id', type=int, required=False, location='args')
+        self.get_parse.add_argument('last_id', type=int, required=False, location='args')
+        self.get_parse.add_argument('limit', type=int, required=True, location='args')
 
-    def get(self, tweet_id=None):
-        args = self.get_parse.parse_args()
-        last_comment_id = args['last_comment_id'] if args['last_comment_id'] is not None else sys.maxsize
-        limit = args['limit']
-        tweet_id = args['tweet_id'] if tweet_id is None else tweet_id
-        if tweet_id is not None:
-            tweet = Tweet.query.get(tweet_id)
-            if tweet is None:
+    def get(self, comment_id, tweet_id):
+        if comment_id is not None:
+            # /comment/<int:comment_id>
+            comment = CommentTable.query.get(comment_id)
+            if comment is None:
                 abort(404)
             else:
-                return {
-                    'comments': [marshal(comment, comment_fields) for comment in tweet.comments
-                        .filter(CommentTable.comment_id < last_comment_id)
-                        .limit(limit)]
-                }
-        else:
-            abort(400)
+                return marshal(comment, comment_fields)
+        elif tweet_id is not None:
+            # /comment/<int:comment_id>
+            args = self.get_parse.parse_args()
+            last_id = args['last_comment_id'] if args['last_comment_id'] is not None else sys.maxsize
+            limit = args['limit']
+            tweet_id = args['tweet_id'] if tweet_id is None else tweet_id
+            if tweet_id is not None:
+                tweet = Tweet.query.get(tweet_id)
+                if tweet is None:
+                    abort(404)
+                else:
+                    return {
+                        'comments': [marshal(comment, comment_fields) for comment in tweet.comments
+                            .filter(CommentTable.comment_id < last_id)
+                            .limit(limit)]
+                    }
+            else:
+                abort(400)
         pass
 
     @marshal_with(comment_fields)
-    def post(self):
+    def post(self, tweet_id):
         args = self.post_parse.parse_args()
-        tweet_id =  args['tweet_id']
         content = args['content']
         from_user_id = args['from_user_id']
         to_user_id = args['to_user_id']
@@ -57,4 +64,9 @@ class Comment(restful.Resource):
             db.session.add(comment)
             db.session.commit()
             return comment
+        pass
+
+    def delete(self, tweet_id, comment_id):
+        # Todo: Delete comment.
+        return {'message': 'delete comment success.'}
         pass

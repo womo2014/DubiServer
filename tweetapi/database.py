@@ -12,8 +12,7 @@ class User(db.Model):
     username = db.Column(db.String(50), unique=True, nullable=False)
     password = db.Column(db.String(100), nullable=False)
     photo_url = db.Column(db.String(50))
-    tweets = db.relationship('Tweet', backref='user', lazy='dynamic', cascade="all, delete-orphan",
-                             passive_deletes=True)
+    tweets = db.relationship('Tweet', backref='user', lazy='dynamic', cascade="delete")
     def __init__(self, username, password, photo_url = None):
         self.username = username
         self.password = password
@@ -35,8 +34,7 @@ class Tweet(db.Model):
     stared = db.Column(db.Integer, nullable=False, default=0)
     image_url = db.Column(db.String(50))
     user_id = db.Column(db.Integer, db.ForeignKey('user.user_id', ondelete='CASCADE'), nullable=False)
-    comments = db.relationship('Comment', lazy='dynamic', cascade="all, delete-orphan",
-                             passive_deletes=True)
+    comments = db.relationship('Comment', lazy='dynamic', cascade="delete")
 
     def __init__(self, user_id, description, image_url=None, stared=False):
         self.description = description
@@ -57,7 +55,7 @@ class Comment(db.Model):
     tweet_id = db.Column(db.Integer, db.ForeignKey('tweet.tweet_id', ondelete='CASCADE'), nullable=False)
     from_user_id = db.Column(db.Integer, db.ForeignKey('user.user_id', ondelete='CASCADE'), nullable=False)
     to_user_id = db.Column(db.Integer, db.ForeignKey('user.user_id'))
-    user = db.relationship('User', backref='comments', foreign_keys=from_user_id)
+    # user = db.relationship('User', backref='comments', foreign_keys=from_user_id)
 
     def __init__(self, tweet_id, content, from_user_id, to_user_id=None):
 

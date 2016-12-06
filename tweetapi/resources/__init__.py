@@ -2,6 +2,7 @@ import time, base64
 from flask_restful import fields
 from flask import make_response, jsonify, g, request
 from flask_httpauth import HTTPTokenAuth
+from tweetapi.database import User
 
 user_fields = {
     'username': fields.String,
@@ -18,26 +19,23 @@ tweet_fields = {
 }
 
 comment_fields = {
-    'user': fields.Nested(user_fields),
-    'tweet_id': fields.String,
+    'comment_id': fields.Integer,
+    'tweet_id': fields.Integer,
+    'from_user_id': fields.Integer,
     'to_user_id': fields.Integer,
     'content': fields.String
 }
 
 auth = HTTPTokenAuth(scheme='Token')
-users = {
-    "aaabbbccc": "john",
-    "bbbcccddd": "susan"
-}
+
+users = {}
 
 
 @auth.verify_token
 def verify_token(token):
     if token in users:
-        if request.method == 'GET':
-            return True
-        data = request.json
-        if 'user_id' in data and data['user_id'] == users[token]:
+        g.user = User.query.get(parse_token(token))
+        if g.user is not None:
             return True
     return False
 

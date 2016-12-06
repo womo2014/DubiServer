@@ -9,7 +9,7 @@ import unittest
 
 class TweetapiTestCase(unittest.TestCase):
     token = ''
-
+    user_id = 0
     def setUp(self):
         tweetapi.app.config['TESTING'] = True
         self.app = tweetapi.app.test_client()
@@ -55,11 +55,29 @@ class TweetapiTestCase(unittest.TestCase):
         data = self.post_image(user_id, filename)
         assert 'url' in data
         data = json.dumps({
-            "user_id": user_id,
             'description': description,
             'image_url': json.loads(data)['url']
         })
-        rv = self.app.post('tweet', data=data, headers=self.get_headers())
+        rv = self.app.post('/users/%r/tweet' % user_id, data=data, headers=self.get_headers())
+        print rv.data, rv.status
+        return rv.data
+
+    def delete_tweet(self, user_id, tweet_id):
+        rv = self.app.delete('/users/%r/tweet/%r' % (user_id, tweet_id), headers=self.get_headers())
+        print rv.data, rv.status
+        return rv.data
+
+    def post_comment(self, tweet_id):
+        data = json.dumps({
+            'content': 'nice',
+            'from_user_id': unicode(self.user_id),
+        })
+        rv = self.app.post('/tweet/%r/comment' % tweet_id, data=data, headers=self.get_headers())
+        print rv.status, rv.data
+        return rv.data
+
+    def delete_comment(self, tweet_id, comment_id):
+        rv = self.app.delete('/tweet/%r/comment/%r' % (tweet_id, comment_id), headers=self.get_headers())
         print rv.data, rv.status
         return rv.data
 
@@ -99,11 +117,11 @@ class TweetapiTestCase(unittest.TestCase):
         assert 'token' in data
         data = json.loads(data)
         self.token = data['token']
-        user_id = data['user_id']
-        data = self.post_tweet(user_id, '今天天气不错', 'test1.png')
+        self.user_id = data['user_id']
+        data = self.post_tweet(self.user_id, '今天天气不错', 'test1.png')
         assert 'tweet_id' in data
-        self.logout(user_id)
-        data = self.post_tweet(user_id, '今天天气不错', 'test1.png')
+        self.logout(self.user_id)
+        data = self.post_tweet(self.user_id, '今天天气不错', 'test1.png')
         assert 'Unauthorized access' in data
 
     def test_post_tweet(self, username='womo'):
@@ -112,8 +130,8 @@ class TweetapiTestCase(unittest.TestCase):
         assert 'token' in data
         data = json.loads(data)
         self.token = data['token']
-        user_id = data['user_id']
-        data = self.post_tweet(user_id, '今天天气不错', 'test1.png')
+        self.user_id = data['user_id']
+        data = self.post_tweet( self.user_id, '今天天气不错', 'test1.png')
         assert 'tweet_id' in data
         return data
 
@@ -127,7 +145,51 @@ class TweetapiTestCase(unittest.TestCase):
         rv = self.get_image(user_id, url)
         assert '200' in rv.status
 
+    def test_post_comment(self):
+        data = self.test_post_tweet('womox')
+        tweet_id = json.loads(data)['tweet_id']
+        data = self.post_comment(tweet_id)
+        assert 'comment_id' in data
+        return data
 
+    def test_delete_tweet(self):
+        data = self.test_post_comment()
+        data = json.loads(data)
+        tweet_id = data['tweet_id']
+        comment_id = data['comment_id']
+        data = self.delete_tweet(self.user_id, tweet_id)
+        assert 'success' in data
+        data = self.delete_tweet(self.user_id, tweet_id)
+        assert 'not found' in data
+        # Todo: verify the tweet and its comments are all be deleted
+        data = self.test_post_comment()
+        data = json.loads(data)
+        tweet_id = data['tweet_id']
+        comment_id = data['comment_id']
+        self.registration('womo', 'womo')
+        data = self.login('womo', 'womo')
+        data = json.loads(data)
+        user_id = data['user_id']
+        self.token = data['token']
+        data = self.delete_tweet(self.user_id, tweet_id)
+        assert 'no permission' in data
+
+    def test_delete_comment(self):
+        data = self.test_post_comment()
+        data = json.loads(data)
+        tweet_id = data['tweet_id']
+        comment_id = data['comment_id']
+        data = self.delete_comment(tweet_id, comment_id)
+        assert 'success' in data
+        data = self.delete_comment(tweet_id, comment_id)
+        # assert 'not found' in data
+        pass
+
+    def test_get_tweet(self):
+        data = self.test_post_tweet()
+        data = json.loads(data)
+        tweet_id = data['tweet_id']
+        user_id = data['user']['user_id']
 
 if __name__ == '__main__':
     unittest.main()
