@@ -1,10 +1,20 @@
 #!/usr/bin/env python2
 # -*- coding: utf-8 -*-
+import time
+
+import datetime
+
+import pytz
+import timestamp as timestamp
 from flask_sqlalchemy import SQLAlchemy
-from sqlalchemy import event
-from sqlalchemy.orm import backref
 
 db = SQLAlchemy()
+
+
+relationship = db.Table("relationship",
+    db.Column("from_user_id", db.Integer, db.ForeignKey("user.user_id"), primary_key=True),
+    db.Column("to_user_id", db.Integer, db.ForeignKey("user.user_id"), primary_key=True)
+)
 
 
 class User(db.Model):
@@ -13,6 +23,13 @@ class User(db.Model):
     password = db.Column(db.String(100), nullable=False)
     photo_url = db.Column(db.String(50))
     tweets = db.relationship('Tweet', backref='user', lazy='dynamic', cascade="delete")
+    friends = db.relationship('User',
+                              secondary=relationship,
+                              lazy='dynamic',
+                              primaryjoin=user_id == relationship.c.to_user_id,
+                              secondaryjoin=user_id == relationship.c.from_user_id,
+                              backref=db.backref('fans', lazy='dynamic'))
+
     def __init__(self, username, password, photo_url = None):
         self.username = username
         self.password = password
@@ -33,6 +50,7 @@ class Tweet(db.Model):
     description = db.Column(db.TEXT, nullable=False)
     stared = db.Column(db.Integer, nullable=False, default=0)
     image_url = db.Column(db.String(50))
+    time = db.Column(db.DateTime, nullable=False)
     user_id = db.Column(db.Integer, db.ForeignKey('user.user_id', ondelete='CASCADE'), nullable=False)
     comments = db.relationship('Comment', lazy='dynamic', cascade="delete")
 
@@ -41,6 +59,7 @@ class Tweet(db.Model):
         self.user_id = user_id
         self.image_url = image_url
         self.stared = stared
+        self.time = datetime.datetime.now(tz=pytz.timezone('Asia/Shanghai'))
         pass
 
     def __repr__(self):
@@ -55,10 +74,11 @@ class Comment(db.Model):
     tweet_id = db.Column(db.Integer, db.ForeignKey('tweet.tweet_id', ondelete='CASCADE'), nullable=False)
     from_user_id = db.Column(db.Integer, db.ForeignKey('user.user_id', ondelete='CASCADE'), nullable=False)
     to_user_id = db.Column(db.Integer, db.ForeignKey('user.user_id'))
+    time = db.Column(db.DateTime, nullable=False)
     # user = db.relationship('User', backref='comments', foreign_keys=from_user_id)
 
     def __init__(self, tweet_id, content, from_user_id, to_user_id=None):
-
+        self.time = datetime.datetime.now(tz=pytz.timezone('Asia/Shanghai'))
         self.tweet_id = tweet_id
         self.content = content
         self.from_user_id = from_user_id

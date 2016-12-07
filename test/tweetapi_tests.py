@@ -161,7 +161,6 @@ class TweetapiTestCase(unittest.TestCase):
         assert 'success' in data
         data = self.delete_tweet(self.user_id, tweet_id)
         assert 'not found' in data
-        # Todo: verify the tweet and its comments are all be deleted
         data = self.test_post_comment()
         data = json.loads(data)
         tweet_id = data['tweet_id']
@@ -186,10 +185,54 @@ class TweetapiTestCase(unittest.TestCase):
         pass
 
     def test_get_tweet(self):
-        data = self.test_post_tweet()
+        data = self.test_post_tweet('aaa')
+        data = self.test_post_tweet('bbb')
+        data = self.test_post_tweet('ccc')
+        data = self.test_post_tweet('ccc')
         data = json.loads(data)
         tweet_id = data['tweet_id']
         user_id = data['user']['user_id']
+        self.registration('1womo', 'xxx')
+        data = json.loads(self.login('1womo', 'xxx'))
+        self.token = data['token']
+        self.user_id = data['user_id']
+        rv = self.app.post('/users/%r/friends' % self.user_id,
+                           data=json.dumps({'follow_user_id': unicode(user_id)}),
+                           headers=self.get_headers())
+        print rv.data, rv.status
+        rv = self.app.get('/users/%r/friends/tweet?limit=10' % self.user_id,
+                          headers=self.get_headers())
+        print rv.data, rv.status
+        rv = self.app.get('/tweet?limit=3',
+                          headers=self.get_headers())
+        print rv.data, rv.status
+
+    def test_follow_user(self):
+        user_id = []
+        token = []
+        self.registration('womo', 'xxx')
+        data = json.loads(self.login('womo', 'xxx'))
+        token.append(data['token'])
+        user_id.append(data['user_id'])
+        self.registration('womo1', 'xxx')
+        data = json.loads(self.login('womo1', 'xxx'))
+        token.append(data['token'])
+        user_id.append(data['user_id'])
+        self.token = token[0]
+        rv = self.app.post('/users/%r/friends' % user_id[0],
+                           data=json.dumps({'follow_user_id':unicode(user_id[1])}),
+                           headers=self.get_headers())
+        print rv.data, rv.status
+        rv = self.app.get('/users/%r/friends' % user_id[0],
+                          headers=self.get_headers())
+        print rv.data, rv.status
+        rv = self.app.get('/users/%r/fans' % user_id[1],
+                          headers=self.get_headers())
+        print rv.data, rv.status
+        rv = self.app.delete('/users/%r/friends/%r' % (user_id[0], user_id[1]),
+                           headers=self.get_headers())
+        print rv.data, rv.status
+
 
 if __name__ == '__main__':
     unittest.main()

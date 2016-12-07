@@ -12,8 +12,10 @@ user_fields = {
 
 tweet_fields = {
     'user': fields.Nested(user_fields),
+    # 'user_id': fields.Integer,
+    'time': fields.DateTime,
     'description': fields.String,
-    'likes': fields.Boolean,
+    'likes': fields.Integer,
     'tweet_id': fields.Integer,
     'image_url':fields.String
 }
@@ -23,7 +25,8 @@ comment_fields = {
     'tweet_id': fields.Integer,
     'from_user_id': fields.Integer,
     'to_user_id': fields.Integer,
-    'content': fields.String
+    'content': fields.String,
+    'time': fields.DateTime,
 }
 
 auth = HTTPTokenAuth(scheme='Token')
@@ -35,6 +38,7 @@ users = {}
 def verify_token(token):
     if token in users:
         g.user = User.query.get(parse_token(token))
+        print g.user
         if g.user is not None:
             return True
     return False

@@ -4,11 +4,12 @@ from flask import Flask, g
 import flask_restful as restful
 from tweetapi.database import db
 
-from tweetapi.resources.Login import Login, Logout
-from tweetapi.resources.Registration import Registration
-from tweetapi.resources.Tweet import Tweet
-from tweetapi.resources.Comment import Comment, CommentTable
-from tweetapi.resources.Image import Image
+from .resources.Login import Login, Logout
+from .resources.Registration import Registration
+from .resources.Tweet import Tweet
+from .resources.Comment import Comment, CommentTable
+from .resources.Image import Image
+from .resources.RelationshipAPI import RelationshipAPI
 
 app = Flask(__name__)
 app.config.from_pyfile('config.py')
@@ -26,14 +27,18 @@ api.add_resource(Registration, '/registration')
 api.add_resource(Tweet,
                  '/users/<int:user_id>/tweet', # POST, GET
                  '/users/<int:user_id>/tweet/<int:tweet_id>', # DELETE
-                 # '/users/<int:user_id>/friends/tweet', # GET
+                 '/users/<int:user_id>/friends/tweet', # GET
                  '/tweet/<int:tweet_id>', # GET
                  '/tweet') # GET
 api.add_resource(Comment,
                  '/tweet/<int:tweet_id>/comment', # POST, GET
                  '/tweet/<int:tweet_id>/comment/<int:comment_id>', # DELETE
                  '/comment/<int:comment_id>',) # GET
-
+api.add_resource(RelationshipAPI,
+                 '/users/<int:user_id>/friends', # GET POST
+                 '/users/<int:user_id>/friends/<int:remove_user_id>', # DELETE
+                 '/users/<int:user_id>/fans' # GET
+                 )
 api.add_resource(Image, '/image', '/image/<filename>', endpoint='image')
 
 if __name__ == '__main__':

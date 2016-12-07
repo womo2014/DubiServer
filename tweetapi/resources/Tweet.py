@@ -23,7 +23,7 @@ class Tweet(restful.Resource):
                                     help='need argument limit like ?limit=10', location='args')
         pass
 
-    def get(self, tweet_id, user_id):
+    def get(self, tweet_id = None, user_id = None):
         args = self.get_parse.parse_args()
         last_id = args['last_id'] if args['last_id'] is not None else sys.maxsize
         limit = args['limit']
@@ -38,8 +38,15 @@ class Tweet(restful.Resource):
             if user is not None:
                 # /users/<int:user_id>/friends/tweet
                 if 'friends' in request.url:
-                    # TODO return friends' tweets
-                    return
+                    if g.user.user_id != user_id:
+                        abort(400)
+                    else:
+                        tweets = TweetTable.query\
+                            .filter(TweetTable.user_id.in_([friend.user_id for friend in user.friends]))\
+                            .order_by(TweetTable.tweet_id.desc())\
+                            .limit(limit)
+
+                        return {'tweets': [marshal(tweet, tweet_fields) for tweet in tweets]}
                 # /users/<int:user_id>/tweet
                 else:
                     return {'tweets': [marshal(tweet, tweet_fields) for tweet in user.tweets

@@ -68,5 +68,6 @@ class Comment(restful.Resource):
 
     def delete(self, tweet_id, comment_id):
         # Todo: Delete comment.
+
         return {'message': 'delete comment success.'}
         pass
