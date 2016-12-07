@@ -51,12 +51,16 @@ class TweetapiTestCase(unittest.TestCase):
         print rv.data, rv.status
         return rv.data
 
-    def post_tweet(self, user_id, description, filename):
-        data = self.post_image(user_id, filename)
-        assert 'url' in data
+    def post_tweet(self, user_id, description, filename=None):
+        if filename is not None:
+            data = self.post_image(user_id, filename)
+            assert 'url' in data
+            url = json.loads(data)['url']
+        else:
+            url = None
         data = json.dumps({
             'description': description,
-            'image_url': json.loads(data)['url']
+            'image_url': url
         })
         rv = self.app.post('/users/%r/tweet' % user_id, data=data, headers=self.get_headers())
         print rv.data, rv.status
@@ -83,14 +87,14 @@ class TweetapiTestCase(unittest.TestCase):
 
     def post_image(self, user_id, filename):
         path = r'D:\DATA\python\AndroidApp\test'
-        with open(os.path.join(path,filename), 'rb') as image_file:
-            image_data = image_file.read()
-        data = json.dumps({
-            'user_id': user_id,
-            'filename': filename,
-            'image': base64.b64encode(image_data)
-        })
-        rv = self.app.post('/image', data=data, headers=self.get_headers())
+        data = {
+            'image': open(os.path.join(path,filename), 'rb'),
+            'user_id': user_id
+        }
+        rv = self.app.post('/image',
+                           content_type='multipart/form-data',
+                           data=data,
+                           headers=self.get_headers())
         print rv.data, rv.status
         return rv.data
 
@@ -121,7 +125,7 @@ class TweetapiTestCase(unittest.TestCase):
         data = self.post_tweet(self.user_id, '今天天气不错', 'test1.png')
         assert 'tweet_id' in data
         self.logout(self.user_id)
-        data = self.post_tweet(self.user_id, '今天天气不错', 'test1.png')
+        data = self.post_tweet(self.user_id, '今天天气不错')
         assert 'Unauthorized access' in data
 
     def test_post_tweet(self, username='womo'):
