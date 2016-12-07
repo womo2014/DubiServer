@@ -5,7 +5,6 @@ import time
 import datetime
 
 import pytz
-import timestamp as timestamp
 from flask_sqlalchemy import SQLAlchemy
 
 db = SQLAlchemy()
