@@ -19,4 +19,4 @@ class Registration(restful.Resource):
             db.session.commit()
             return {'message': 'register success'}
         else:
-            return {'error': 'duplicate username'}, 400
+            return {'message': 'duplicate username'}, 400

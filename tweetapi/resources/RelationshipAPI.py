@@ -36,9 +36,9 @@ class RelationshipAPI(restful.Resource):
             follow_user_id = self.post_parse.parse_args()['follow_user_id']
             follow_user = User.query.get(follow_user_id)
             if follow_user is None:
-                return {'error': 'no such user'}, 400
+                return {'message': 'no such user'}, 400
             elif follow_user in g.user.friends:
-                return {'error': 'you have followed this user'}, 400
+                return {'message': 'you have followed this user'}, 400
             else:
                 g.user.friends.append(follow_user)
                 db.session.commit()
@@ -53,9 +53,9 @@ class RelationshipAPI(restful.Resource):
             print g.user.user_id, 'here', [x for x in g.user.friends]
             removed_user = User.query.get(remove_user_id)
             if removed_user is None:
-                return {'error': 'no such user'}, 404
+                return {'message': 'no such user'}, 404
             elif removed_user not in g.user.friends:
-                return {'error': 'you have not followed this user'}, 404
+                return {'message': 'you have not followed this user'}, 404
             else:
                 g.user.friends.remove(removed_user)
                 db.session.commit()

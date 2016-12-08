@@ -18,7 +18,7 @@ class Login(restful.Resource):
         if token is not None:
             return {'token':token, 'user_id':user_id}
         else:
-            return {'error':'invalid username or password'}, 400
+            return {'message':'invalid username or password'}, 400
         pass
 
     def login(self, username, password):

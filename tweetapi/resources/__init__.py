@@ -46,7 +46,7 @@ def verify_token(token):
 
 @auth.error_handler
 def unauthorized():
-    resp = make_response(jsonify({'error': 'Unauthorized access'}), 401)
+    resp = make_response(jsonify({'message': 'Unauthorized access'}), 401)
     return resp
 
 
