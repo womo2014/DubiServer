@@ -18,14 +18,14 @@ class Tweet(restful.Resource):
         self.post_parse.add_argument('image_url', type=unicode, required=False, location='json')
 
         self.get_parse = reqparse.RequestParser()
-        self.get_parse.add_argument('last_id', type=int, required=False, location='args')
+        self.get_parse.add_argument('last_id', type=int, required=True, location='args')
         self.get_parse.add_argument('limit', type=int, required=True,
                                     help='need argument limit like ?limit=10', location='args')
         pass
 
     def get(self, tweet_id = None, user_id = None):
         args = self.get_parse.parse_args()
-        last_id = args['last_id'] if args['last_id'] is not None else sys.maxsize
+        last_id = args['last_id'] if args['last_id'] != -1 else sys.maxsize
         limit = args['limit']
         # /tweet/<tweet_id>
         if tweet_id is not None:
@@ -46,21 +46,21 @@ class Tweet(restful.Resource):
                             .order_by(TweetTable.tweet_id.desc())\
                             .limit(limit)
 
-                        return {'tweets': [marshal(tweet, tweet_fields) for tweet in tweets]}
+                        return [marshal(tweet, tweet_fields) for tweet in tweets]
                 # /users/<int:user_id>/tweet
                 else:
-                    return {'tweets': [marshal(tweet, tweet_fields) for tweet in user.tweets
+                    return [marshal(tweet, tweet_fields) for tweet in user.tweets
                         .filter(TweetTable.tweet_id < last_id)
                         .order_by(TweetTable.tweet_id.desc())
-                        .limit(limit)]}
+                        .limit(limit)]
             else:
                 abort(404)
         # /tweet
         else:
-            return {'tweets': [marshal(tweet, tweet_fields) for tweet in TweetTable.query
+            return [marshal(tweet, tweet_fields) for tweet in TweetTable.query
                 .filter(TweetTable.tweet_id < last_id)
                 .order_by(TweetTable.tweet_id.desc())
-                .limit(limit)]}
+                .limit(limit)]
         pass
 
     def post(self, user_id):

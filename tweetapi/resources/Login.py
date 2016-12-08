@@ -11,9 +11,9 @@ from tweetapi.resources import users, generate_token
 
 class Login(restful.Resource):
     def post(self):
-        json_data = request.get_json()
-        username = json_data['username']
-        password = json_data['password']
+        data = request.form
+        username = data['username']
+        password = data['password']
         token, user_id = self.login(username, password)
         if token is not None:
             return {'token':token, 'user_id':user_id}
@@ -36,7 +36,7 @@ class Login(restful.Resource):
 class Logout(restful.Resource):
     def __init__(self):
         self.post_parse = reqparse.RequestParser()
-        self.post_parse.add_argument('user_id', type=int, required=True, location=['json', 'args'])
+        self.post_parse.add_argument('user_id', type=int, required=True, location='values')
         self.post_parse.add_argument('Authorization', type=unicode, required=True, location='headers')
 
     def post(self):

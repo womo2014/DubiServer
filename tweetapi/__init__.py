@@ -4,12 +4,12 @@ from flask import Flask, g
 import flask_restful as restful
 from tweetapi.database import db
 
-from .resources.Login import Login, Logout
-from .resources.Registration import Registration
-from .resources.Tweet import Tweet
-from .resources.Comment import Comment, CommentTable
-from .resources.Image import Image
-from .resources.RelationshipAPI import RelationshipAPI
+from tweetapi.resources.Login import Login, Logout
+from tweetapi.resources.Registration import Registration
+from tweetapi.resources.Tweet import Tweet
+from tweetapi.resources.Comment import Comment, CommentTable
+from tweetapi.resources.Image import Image
+from tweetapi.resources.RelationshipAPI import RelationshipAPI
 
 app = Flask(__name__)
 app.config.from_pyfile('config.py')
@@ -22,7 +22,7 @@ with app.app_context():
 
 api = restful.Api(app)
 api.add_resource(Login, '/login')
-api.add_resource(Logout, '/logout', '/logout')
+api.add_resource(Logout, '/logout')
 api.add_resource(Registration, '/registration')
 api.add_resource(Tweet,
                  '/users/<int:user_id>/tweet', # POST, GET
