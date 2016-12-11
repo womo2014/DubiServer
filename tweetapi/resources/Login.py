@@ -36,7 +36,7 @@ class Login(restful.Resource):
 class Logout(restful.Resource):
     def __init__(self):
         self.post_parse = reqparse.RequestParser()
-        self.post_parse.add_argument('user_id', type=int, required=True, location='values')
+        # self.post_parse.add_argument('user_id', type=int, required=True, location='values')
         self.post_parse.add_argument('Authorization', type=unicode, required=True, location='headers')
 
     def post(self):
