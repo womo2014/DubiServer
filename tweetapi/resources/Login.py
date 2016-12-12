@@ -22,6 +22,7 @@ class Login(restful.Resource):
         pass
 
     def login(self, username, password):
+        global users
         user = User.query.filter_by(username=username).first()
         if user is not None and user.password == password:
             token = generate_token(user.user_id)
@@ -40,6 +41,7 @@ class Logout(restful.Resource):
         self.post_parse.add_argument('Authorization', type=unicode, required=True, location='headers')
 
     def post(self):
+        global users
         token = self.post_parse.parse_args()['Authorization']
         print token
         users.pop(token.split(' ', 1)[1])
