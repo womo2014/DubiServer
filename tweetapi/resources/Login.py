@@ -6,7 +6,7 @@ import flask_restful as  restful
 from flask_restful import reqparse
 from flask import request, g
 from tweetapi.database import db, User
-from tweetapi.resources import users, generate_token
+from tweetapi.resources import users, generate_token, mutex
 
 
 class Login(restful.Resource):
@@ -22,11 +22,14 @@ class Login(restful.Resource):
         pass
 
     def login(self, username, password):
-        global users
+        global users, mutex
+
         user = User.query.filter_by(username=username).first()
         if user is not None and user.password == password:
             token = generate_token(user.user_id)
+            mutex.require()
             users[token] = user.user_id
+            mutex.release()
             return token, user.user_id
 
         else:
@@ -41,10 +44,12 @@ class Logout(restful.Resource):
         self.post_parse.add_argument('Authorization', type=unicode, required=True, location='headers')
 
     def post(self):
-        global users
+        global users, mutex
+        mutex.require()
         token = self.post_parse.parse_args()['Authorization']
         print token
         users.pop(token.split(' ', 1)[1])
+        mutex.release()
         return {'message': 'logout success'}
 
 

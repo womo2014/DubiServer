@@ -1,3 +1,4 @@
+import threading
 import time, base64
 from flask_restful import fields
 from flask import make_response, jsonify, g, request
@@ -30,19 +31,24 @@ comment_fields = {
 }
 
 auth = HTTPTokenAuth(scheme='Token')
-
+global users, mutex
 users = {}
+mutex = threading.Lock()
 
 @auth.verify_token
 def verify_token(token):
     print 'token:', token
-    global users
+    global users, mutex
+    mutex.acquire()
     if token in users:
+        mutex.release()
         g.user = User.query.get(parse_token(token))
         print g.user
         if g.user is not None:
             return True
-    return False
+    else:
+        mutex.release()
+        return False
 
 
 @auth.error_handler
