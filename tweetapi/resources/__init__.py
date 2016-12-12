@@ -36,6 +36,7 @@ users = {}
 
 @auth.verify_token
 def verify_token(token):
+    print 'token:', token
     if token in users:
         g.user = User.query.get(parse_token(token))
         print g.user
