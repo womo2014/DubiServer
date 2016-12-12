@@ -27,7 +27,7 @@ class Login(restful.Resource):
         user = User.query.filter_by(username=username).first()
         if user is not None and user.password == password:
             token = generate_token(user.user_id)
-            mutex.require()
+            mutex.acquire()
             users[token] = user.user_id
             mutex.release()
             return token, user.user_id
@@ -45,7 +45,7 @@ class Logout(restful.Resource):
 
     def post(self):
         global users, mutex
-        mutex.require()
+        mutex.acquire()
         token = self.post_parse.parse_args()['Authorization']
         print token
         users.pop(token.split(' ', 1)[1])
