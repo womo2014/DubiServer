@@ -5,7 +5,7 @@ import random
 import flask_restful as  restful
 from flask_restful import reqparse
 from flask import request, g
-from tweetapi.database import db, User
+from tweetapi.database import db, User, LoginInfo
 from tweetapi.resources import  generate_token
 from tweetapi import global_vars
 
@@ -26,9 +26,8 @@ class Login(restful.Resource):
         user = User.query.filter_by(username=username).first()
         if user is not None and user.password == password:
             token = generate_token(user.user_id)
-            global_vars.mutex.acquire()
-            global_vars.users[token] = user.user_id
-            global_vars.mutex.release()
+            db.session.add(LoginInfo(user.user_id, token))
+            db.session.commit()
             return token, user.user_id
         else:
             return None, None
@@ -44,10 +43,13 @@ class Logout(restful.Resource):
     def post(self):
         token = self.post_parse.parse_args()['Authorization']
         print token
-        global_vars.mutex.acquire()
-        global_vars.users.pop(token.split(' ', 1)[1])
-        global_vars.mutex.release()
-        return {'message': 'logout success'}
+        login_info = LoginInfo.query.filter(LoginInfo.token == token).first()
+        if login_info is not None:
+            db.session.delete(login_info)
+            db.session.commit()
+            return {'message': 'logout success'}
+        else:
+            return {'message': 'token error'}
 
 
 

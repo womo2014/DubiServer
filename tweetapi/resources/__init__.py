@@ -3,8 +3,7 @@ import time, base64
 from flask_restful import fields
 from flask import make_response, jsonify, g, request
 from flask_httpauth import HTTPTokenAuth
-from tweetapi.database import User
-from tweetapi import global_vars
+from tweetapi.database import User, LoginInfo
 
 user_fields = {
     'username': fields.String,
@@ -37,10 +36,7 @@ auth = HTTPTokenAuth(scheme='Token')
 @auth.verify_token
 def verify_token(token):
     print 'token:', token
-    global_vars.mutex.acquire()
-    is_logged = token in global_vars.users
-    global_vars.mutex.release()
-    if is_logged:
+    if LoginInfo.query.filter(LoginInfo.token == token).first() is not None:
         g.user = User.query.get(parse_token(token))
         print g.user
         if g.user is not None:

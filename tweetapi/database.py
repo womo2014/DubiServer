@@ -28,6 +28,7 @@ class User(db.Model):
                               primaryjoin=user_id == relationship.c.to_user_id,
                               secondaryjoin=user_id == relationship.c.from_user_id,
                               backref=db.backref('fans', lazy='dynamic'))
+    login_infos = db.relationship('LoginInfo', backref='user', lazy='dynamic', cascade="delete")
 
     def __init__(self, username, password, photo_url = None):
         self.username = username
@@ -90,6 +91,19 @@ class Comment(db.Model):
         pass
 
     pass
+
+
+class LoginInfo(db.Model):
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    time = db.Column(db.DateTime, nullable=False)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.user_id', ondelete='CASCADE'), nullable=False)
+    token = db.Column(db.String(100), nullable=False)
+
+    def __init__(self, user_id, token):
+        self.user_id = user_id
+        self.token = token
+        self.time = datetime.datetime.now(tz=pytz.timezone('Asia/Shanghai'))
+
 
 
 
