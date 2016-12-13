@@ -4,7 +4,8 @@ from flask_restful import fields
 from flask import make_response, jsonify, g, request
 from flask_httpauth import HTTPTokenAuth
 from tweetapi.database import User
-from tweetapi.globals import users, mutex
+from tweetapi import global_vars
+
 user_fields = {
     'username': fields.String,
     'user_id': fields.Integer,
@@ -36,9 +37,9 @@ auth = HTTPTokenAuth(scheme='Token')
 @auth.verify_token
 def verify_token(token):
     print 'token:', token
-    mutex.acquire()
-    is_logged = token in users
-    mutex.release()
+    global_vars.mutex.acquire()
+    is_logged = token in global_vars.users
+    global_vars.mutex.release()
     if is_logged:
         g.user = User.query.get(parse_token(token))
         print g.user
