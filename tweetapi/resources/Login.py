@@ -30,7 +30,6 @@ class Login(restful.Resource):
             users[token] = user.user_id
             mutex.release()
             return token, user.user_id
-
         else:
             return None, None
         pass

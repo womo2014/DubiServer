@@ -44,13 +44,13 @@ def verify_token(token):
         print g.user
         if g.user is not None:
             return True
-    else:
-        return False
+    g.msg = ' token:'+ token
+    return False
 
 
 @auth.error_handler
 def unauthorized():
-    resp = make_response(jsonify({'message': 'Unauthorized access'}), 401)
+    resp = make_response(jsonify({'message': 'Unauthorized access' + g.msg}), 401)
     return resp
 
 
