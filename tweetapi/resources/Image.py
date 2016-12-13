@@ -34,7 +34,7 @@ class Image(restful.Resource):
         filename = args['filename'] if filename is None else filename
         path = os.path.join(config.UPLOAD_FOLDER, filename)
         if os.path.exists(path):
-            return send_file(path)
+            return send_file(path, cache_timeout=3600*24*100)
         else:
             abort(404)
 
