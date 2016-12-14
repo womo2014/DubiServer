@@ -75,7 +75,7 @@ class Comment(db.Model):
     from_user_id = db.Column(db.Integer, db.ForeignKey('user.user_id', ondelete='CASCADE'), nullable=False)
     to_user_id = db.Column(db.Integer, db.ForeignKey('user.user_id'))
     time = db.Column(db.DateTime, nullable=False)
-    # user = db.relationship('User', backref='comments', foreign_keys=from_user_id)
+    from_user = db.relationship('User', foreign_keys=from_user_id, lazy='dynamic')
 
     def __init__(self, tweet_id, content, from_user_id, to_user_id=None):
         self.time = datetime.datetime.now(tz=pytz.timezone('Asia/Shanghai'))
