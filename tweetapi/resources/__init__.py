@@ -36,7 +36,7 @@ comment_fields = {
     'to_user_id': fields.Integer,
     'content': fields.String,
     'time': fields.DateTime,
-    'from_user': user_fields
+    'from_user': fields.Nested(user_fields)
 }
 
 auth = HTTPTokenAuth(scheme='Token')
