@@ -33,7 +33,7 @@ class Comment(restful.Resource):
         elif tweet_id is not None:
             # /comment/<int:comment_id>
             args = self.get_parse.parse_args()
-            last_id = args['last_comment_id'] if args['last_comment_id'] is not None else sys.maxsize
+            last_id = sys.maxsize if args['last_id'] == -1 else args['last_id']
             limit = args['limit']
             tweet_id = args['tweet_id'] if tweet_id is None else tweet_id
             if tweet_id is not None:
