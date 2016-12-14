@@ -41,11 +41,8 @@ class Comment(restful.Resource):
                 if tweet is None:
                     abort(404)
                 else:
-                    return {
-                        'comments': [marshal(comment, comment_fields) for comment in tweet.comments
-                            .filter(CommentTable.comment_id < last_id)
-                            .limit(limit)]
-                    }
+                    return [marshal(comment, comment_fields) for comment in
+                            tweet.comments.filter(CommentTable.comment_id < last_id).limit(limit)]
             else:
                 abort(400)
         pass
