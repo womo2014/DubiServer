@@ -3,7 +3,7 @@
 import flask_restful as  restful
 from flask import g, request
 import sys
-from flask_restful import marshal, reqparse, abort, marshal_with_field
+from flask_restful import marshal, reqparse, abort, marshal_with
 from tweetapi.resources import tweet_fields, auth, user_info_fields
 from tweetapi.database import db, User, Tweet as TweetTable
 
@@ -13,7 +13,7 @@ class UserApi(restful.Resource):
     def __init__(self):
         pass
 
-    @marshal_with_field(user_info_fields)
+    @marshal_with(user_info_fields)
     def get(self, user_id):
         user = User.query.get(user_id)
         if user is None:
