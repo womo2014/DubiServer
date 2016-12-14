@@ -22,7 +22,7 @@ class Comment(restful.Resource):
         self.get_parse.add_argument('last_id', type=int, required=False, location='args')
         self.get_parse.add_argument('limit', type=int, required=True, location='args')
 
-    def get(self, comment_id, tweet_id):
+    def get(self, comment_id = None, tweet_id = None):
         if comment_id is not None:
             # /comment/<int:comment_id>
             comment = CommentTable.query.get(comment_id)
