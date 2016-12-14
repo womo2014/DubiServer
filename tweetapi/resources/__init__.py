@@ -11,6 +11,14 @@ user_fields = {
     'photo_url': fields.String
 }
 
+user_info_fields = {
+    'username': fields.String,
+    'user_id': fields.Integer,
+    'photo_url': fields.String,
+    'is_friend': fields.Boolean(default=False),
+    'is_fan': fields.Boolean(default=False),
+}
+
 tweet_fields = {
     'user': fields.Nested(user_fields),
     # 'user_id': fields.Integer,
