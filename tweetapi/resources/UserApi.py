@@ -15,7 +15,7 @@ class UserApi(restful.Resource):
         self.post_paarse.add_argument("introduction", type=unicode, location='json')
         self.post_paarse.add_argument("region", type=unicode, location='json')
         self.post_paarse.add_argument("birth", type=unicode, location='json')
-        self.post_paarse.add_argument("image_url", type=unicode, location='json')
+        self.post_paarse.add_argument("photo_url", type=unicode, location='json')
         pass
 
     @marshal_with(user_info_fields)
@@ -37,11 +37,11 @@ class UserApi(restful.Resource):
         if data['introduction'] is not None:
             g.user.introduction = data['introduction']
         if data['region'] is not None:
-            g.user.introduction = data['region']
+            g.user.region = data['region']
         if data['birth'] is not None:
             g.user.introduction = data['birth']
-        if data['image_url'] is not None:
-            g.user.introduction = data['image_url']
+        if data['photo_url'] is not None:
+            g.user.introduction = data['photo_url']
         db.session.commit()
         return g.user
         pass
