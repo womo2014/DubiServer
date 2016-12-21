@@ -19,7 +19,8 @@ user_info_fields = {
     'is_fan': fields.Boolean(default=False),
     'introduction': fields.String,
     'region': fields.String,
-    'birth': fields.String
+    'birth': fields.String,
+    'gender':fields.String
 }
 
 tweet_fields = {

@@ -22,6 +22,7 @@ class User(db.Model):
     password = db.Column(db.String(100), nullable=False)
     photo_url = db.Column(db.String(50))
     introduction = db.Column(db.Text)
+    gender = db.Column(db.String(10))
     region = db.Column(db.String(50))
     birth = db.Column(db.String(50))
     tweets = db.relationship('Tweet', backref='user', lazy='dynamic', cascade="delete")

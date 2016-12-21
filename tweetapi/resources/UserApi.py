@@ -39,9 +39,11 @@ class UserApi(restful.Resource):
         if data['region'] is not None:
             g.user.region = data['region']
         if data['birth'] is not None:
-            g.user.introduction = data['birth']
+            g.user.birth = data['birth']
         if data['photo_url'] is not None:
-            g.user.introduction = data['photo_url']
+            g.user.photo_url = data['photo_url']
+        if data['gender'] is not None:
+            g.user.gender = data['gender']
         db.session.commit()
         return g.user
         pass
