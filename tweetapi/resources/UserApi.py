@@ -16,6 +16,7 @@ class UserApi(restful.Resource):
         self.post_paarse.add_argument("region", type=unicode, location='json')
         self.post_paarse.add_argument("birth", type=unicode, location='json')
         self.post_paarse.add_argument("photo_url", type=unicode, location='json')
+        self.post_paarse.add_argument("gender", type=unicode, location='json')
         pass
 
     @marshal_with(user_info_fields)
