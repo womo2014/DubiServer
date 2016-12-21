@@ -11,6 +11,11 @@ class UserApi(restful.Resource):
     decorators = [auth.login_required]
 
     def __init__(self):
+        self.post_paarse = reqparse.RequestParser()
+        self.post_paarse.add_argument("introduction", type=unicode, location='json')
+        self.post_paarse.add_argument("region", type=unicode, location='json')
+        self.post_paarse.add_argument("birth", type=unicode, location='json')
+        self.post_paarse.add_argument("image_url", type=unicode, location='json')
         pass
 
     @marshal_with(user_info_fields)
@@ -24,8 +29,20 @@ class UserApi(restful.Resource):
             user.is_fan = True
         return user
 
-    def put(self, user_id):
+    @marshal_with(user_info_fields)
+    def post(self, user_id):
         if g.user.user_id != user_id:
             return {'message', 'no permission'}, 401
+        data = self.post_paarse.parse_args()
+        if data['introduction'] is not None:
+            g.user.introduction = data['introduction']
+        if data['region'] is not None:
+            g.user.introduction = data['region']
+        if data['birth'] is not None:
+            g.user.introduction = data['birth']
+        if data['image_url'] is not None:
+            g.user.introduction = data['image_url']
+        db.session.commit()
+        return g.user
         pass
 

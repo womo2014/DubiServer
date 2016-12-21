@@ -17,6 +17,9 @@ user_info_fields = {
     'photo_url': fields.String,
     'is_friend': fields.Boolean(default=False),
     'is_fan': fields.Boolean(default=False),
+    'introduction': fields.String,
+    'region': fields.String,
+    'birth': fields.String
 }
 
 tweet_fields = {
