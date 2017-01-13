@@ -77,11 +77,11 @@ class Comment(restful.Resource):
             .extra({Constants.extra_param_notify_effect: Constants.notify_activity,
                     Constants.extra_param_intent_uri:
                         'intent:#Intent;component=cc.wo_mo.dubi/.ui.CommentActivity;S.tweet=%s;end' % json.dumps(marshal(tweet, tweet_fields))})
-        if g.user.user_id != from_user_id:
+        if tweet.user_id != from_user_id:
             sender.send_to_user_account(message.message_dict(), unicode(tweet.user_id))
         if to_user_id is not None:
             db.session.add(Notification(to_user_id, comment.comment_id))
-            if g.user.user_id != from_user_id:
+            if to_user_id != from_user_id:
                 sender.send_to_user_account(message.message_dict(), unicode(to_user_id))
         db.session.commit()
         return comment
