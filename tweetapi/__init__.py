@@ -10,7 +10,6 @@ from tweetapi.resources.Comment import Comment, CommentTable
 from tweetapi.resources.Image import Image
 from tweetapi.resources.RelationshipAPI import RelationshipAPI
 from tweetapi.resources.UserApi import UserApi
-
 app = Flask(__name__)
 app.config.from_pyfile('config.py')
 db.init_app(app)
@@ -44,7 +43,7 @@ api.add_resource(RelationshipAPI,
 api.add_resource(Image, '/image', '/image/<filename>', endpoint='image')
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(debug=True, host='0.0.0.0')
 
 
 

@@ -26,6 +26,7 @@ class User(db.Model):
     region = db.Column(db.String(50))
     birth = db.Column(db.String(50))
     tweets = db.relationship('Tweet', backref='user', lazy='dynamic', cascade="delete")
+    notifications = db.relationship('Notification', backref='user', lazy='dynamic', cascade="delete")
     friends = db.relationship('User',
                               secondary=relationship,
                               lazy='dynamic',
@@ -54,7 +55,7 @@ class Tweet(db.Model):
     description = db.Column(db.TEXT, nullable=False)
     stared = db.Column(db.Integer, nullable=False, default=0)
     image_url = db.Column(db.String(50))
-    time = db.Column(db.DateTime, nullable=False)
+    time = db.Column(db.DateTime(True), nullable=False)
     user_id = db.Column(db.Integer, db.ForeignKey('user.user_id', ondelete='CASCADE'), nullable=False)
     comments = db.relationship('Comment', lazy='dynamic', cascade="delete")
 
@@ -78,7 +79,7 @@ class Comment(db.Model):
     tweet_id = db.Column(db.Integer, db.ForeignKey('tweet.tweet_id', ondelete='CASCADE'), nullable=False)
     from_user_id = db.Column(db.Integer, db.ForeignKey('user.user_id', ondelete='CASCADE'), nullable=False)
     to_user_id = db.Column(db.Integer, db.ForeignKey('user.user_id'))
-    time = db.Column(db.DateTime, nullable=False)
+    time = db.Column(db.DateTime(True), nullable=False)
     from_user = db.relationship('User', foreign_keys=from_user_id)
 
     def __init__(self, tweet_id, content, from_user_id, to_user_id=None):
@@ -99,7 +100,7 @@ class Comment(db.Model):
 
 class LoginInfo(db.Model):
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    time = db.Column(db.DateTime, nullable=False)
+    time = db.Column(db.DateTime(True), nullable=False)
     user_id = db.Column(db.Integer, db.ForeignKey('user.user_id', ondelete='CASCADE'), nullable=False)
     token = db.Column(db.String(100), nullable=False)
 
@@ -107,6 +108,24 @@ class LoginInfo(db.Model):
         self.user_id = user_id
         self.token = token
         self.time = datetime.datetime.now(tz=pytz.timezone('Asia/Shanghai'))
+
+
+class Notification(db.Model):
+    notify_id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.user_id', ondelete='CASCADE'), nullable=False)
+    comment_id = db.Column(db.Integer, db.ForeignKey('comment.comment_id', ondelete='CASCADE'), nullable=False)
+    time = db.Column(db.DateTime(True), nullable=False)
+
+    def __init__(self, user_id, comment_id):
+        self.comment_id = comment_id
+        self.user_id = user_id
+        self.time = datetime.datetime.now(tz=pytz.timezone('Asia/Shanghai'))
+        pass
+
+    def __repr__(self):
+        return '<Notification notify_id:%r user_id:%r comment_id:%r >' % \
+               (self.notify_id, self.user_id, self.comment_id)
+    pass
 
 
 
