@@ -17,7 +17,6 @@ from tweetapi.database import db, User, Tweet as TweetTable
 
 
 class Image(restful.Resource):
-    decorators = [auth.login_required]
 
     def __init__(self):
         self.get_parse = reqparse.RequestParser()
@@ -29,6 +28,7 @@ class Image(restful.Resource):
                                      location='form', help='need user_id')
         self.post_parse.add_argument('image', type=FileStorage,  required=True,
                                      location='files', help='need iamge file')
+
     def get(self, filename = None):
         args = self.get_parse.parse_args()
         filename = args['filename'] if filename is None else filename
@@ -38,6 +38,7 @@ class Image(restful.Resource):
         else:
             abort(404)
 
+    @auth.login_required
     def post(self):
         args = self.post_parse.parse_args()
         image = args['image']
