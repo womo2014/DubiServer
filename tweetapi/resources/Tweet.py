@@ -18,8 +18,8 @@ class Tweet(restful.Resource):
         self.post_parse.add_argument('image_url', type=unicode, required=False, location='json')
 
         self.get_parse = reqparse.RequestParser()
-        self.get_parse.add_argument('last_id', type=int, required=True, location='args')
-        self.get_parse.add_argument('limit', type=int, required=True,
+        self.get_parse.add_argument('last_id', type=int, required=False, location='args')
+        self.get_parse.add_argument('limit', type=int, required=False,
                                     help='need argument limit like ?limit=10', location='args')
         pass
 
