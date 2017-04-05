@@ -81,8 +81,8 @@ class Comment(restful.Resource):
             sender.send_to_user_account(message.message_dict(), unicode(tweet.user_id))
         if to_user_id is not None:
             db.session.add(Notification(to_user_id, comment.comment_id))
-            if to_user_id != from_user_id:
-                sender.send_to_user_account(message.message_dict(), unicode(to_user_id))
+            # if to_user_id != from_user_id:
+            #     sender.send_to_user_account(message.message_dict(), unicode(to_user_id))
         db.session.commit()
         return comment
         pass
