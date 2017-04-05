@@ -4,7 +4,7 @@ import flask_restful as restful
 from flask import g
 import sys, json
 from flask_restful import marshal,marshal_with, reqparse, abort
-from tweetapi.resources import comment_fields, auth, tweet_fields
+from tweetapi.resources import comment_fields, auth, tweet_fields, user_fields
 from tweetapi.database import db, User, Tweet, Comment as CommentTable, Notification
 from tweetapi.xmpush import sender, PushMessage, Constants
 from tweetapi.config import PACKAGE_NAME
@@ -24,6 +24,11 @@ class Comment(restful.Resource):
         self.get_parse.add_argument('last_id', type=int, required=False, location='args')
         self.get_parse.add_argument('limit', type=int, required=True, location='args')
 
+    def append_to_user(self, comment):
+        if comment['to_user_id'] is not None:
+            comment['to_user'] = marshal(User.query.get(comment['to_user_id']), user_fields)
+        return marshal(comment, comment_fields)
+
     def get(self, comment_id=None, tweet_id=None):
         if comment_id is not None:
             # /comment/<int:comment_id>
@@ -31,7 +36,7 @@ class Comment(restful.Resource):
             if comment is None:
                 abort(404)
             else:
-                return marshal(comment, comment_fields)
+                return self.append_to_user(marshal(comment, comment_fields))
         elif tweet_id is not None:
             # /comment/<int:comment_id>
             args = self.get_parse.parse_args()
@@ -43,7 +48,7 @@ class Comment(restful.Resource):
                 if tweet is None:
                     abort(404)
                 else:
-                    return [marshal(comment, comment_fields) for comment in
+                    return [self.append_to_user(marshal(comment, comment_fields)) for comment in
                             tweet.comments.filter(CommentTable.comment_id > last_id).limit(limit)]
             else:
                 abort(400)
