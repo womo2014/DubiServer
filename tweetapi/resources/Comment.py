@@ -44,7 +44,7 @@ class Comment(restful.Resource):
                     abort(404)
                 else:
                     return [marshal(comment, comment_fields) for comment in
-                            tweet.comments.filter(CommentTable.comment_id < last_id).limit(limit)]
+                            tweet.comments.filter(CommentTable.comment_id > last_id).limit(limit)]
             else:
                 abort(400)
         pass
@@ -89,6 +89,14 @@ class Comment(restful.Resource):
 
     def delete(self, tweet_id, comment_id):
         # Todo: Delete comment.
-
-        return {'message': 'delete comment success.'}
+        comment = CommentTable.query.get(comment_id)
+        tweet = Tweet.query.get(tweet_id)
+        if comment in tweet.comments:
+            if tweet.user_id == g.user.user_id or comment.from_user_id == g.user.user_id:
+                db.session.delete(tweet)
+                db.session.commit()
+                return {'message': 'delete comment success.'}
+            else:
+                return {'error': 'you have no permission'}, 400
+        return {'error': 'bad request'}, 400
         pass
