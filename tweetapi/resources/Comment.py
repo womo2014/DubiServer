@@ -35,7 +35,7 @@ class Comment(restful.Resource):
         elif tweet_id is not None:
             # /comment/<int:comment_id>
             args = self.get_parse.parse_args()
-            last_id = sys.maxsize if args['last_id'] == -1 else args['last_id']
+            last_id = args['last_id']
             limit = args['limit']
             tweet_id = args['tweet_id'] if tweet_id is None else tweet_id
             if tweet_id is not None:
@@ -44,7 +44,7 @@ class Comment(restful.Resource):
                     abort(404)
                 else:
                     return [marshal(comment, comment_fields) for comment in
-                            tweet.comments.filter(CommentTable.comment_id < last_id).limit(limit)]
+                            tweet.comments.filter(CommentTable.comment_id > last_id).limit(limit)]
             else:
                 abort(400)
         pass
