@@ -88,15 +88,15 @@ class Comment(restful.Resource):
         pass
 
     def delete(self, tweet_id, comment_id):
-        # Todo: Delete comment.
         comment = CommentTable.query.get(comment_id)
         tweet = Tweet.query.get(tweet_id)
         if comment in tweet.comments:
             if tweet.user_id == g.user.user_id or comment.from_user_id == g.user.user_id:
-                db.session.delete(tweet)
+                db.session.delete(comment)
                 db.session.commit()
                 return {'message': 'delete comment success.'}
             else:
                 return {'error': 'you have no permission'}, 400
-        return {'error': 'bad request'}, 400
+        else:
+            return {'error': 'bad request'}, 400
         pass
