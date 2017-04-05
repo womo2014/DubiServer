@@ -24,10 +24,11 @@ class Comment(restful.Resource):
         self.get_parse.add_argument('last_id', type=int, required=False, location='args')
         self.get_parse.add_argument('limit', type=int, required=True, location='args')
 
-    def append_to_user(self, comment):
+    @staticmethod
+    def append_to_user(comment):
         if comment['to_user_id'] is not None:
             comment['to_user'] = marshal(User.query.get(comment['to_user_id']), user_fields)
-        return marshal(comment, comment_fields)
+        return comment
 
     def get(self, comment_id=None, tweet_id=None):
         if comment_id is not None:
